@@ -1,0 +1,2040 @@
+﻿<!DOCTYPE html>
+<html lang="ko" data-theme="sunset">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>엔비디아 (NVIDIA) 주식 대시보드 - 최근 1개월 분석</title>
+  <!-- Pretendard Font (KakaoTalk-style modern Korean typography) -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg-color: #EBF0F5;           /* 카카오톡 채팅방 느낌의 부드러운 쿨그레이/스카이 배경 */
+      --card-bg: #FFFFFF;            /* 말풍선처럼 깔끔한 순백 카드 */
+      --card-border: #E2E8F0;
+      --text-main: #191919;          /* 카카오 시그니처 딥 차콜 */
+      --text-brown: #3C1E1E;         /* 카카오 딥 브라운 */
+      --text-sub: #666666;
+      --kakao-yellow: #FEE500;       /* 카카오 시그니처 옐로우 */
+      --kakao-yellow-soft: #FFFBE0;  /* 부드러운 연노랑 말풍선 */
+      --kakao-yellow-border: #F5D900;
+      --nvda-green: #16A34A;
+      --fall-color: #2563EB;
+      --rise-color: #DC2626;
+      --font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      line-height: 1.65;
+      padding: 20px 16px 40px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+
+    /* Top Notice Banner - KakaoTalk Channel Notice Style */
+    .disclaimer-banner {
+      background-color: var(--kakao-yellow);
+      border: 1px solid var(--kakao-yellow-border);
+      border-radius: 14px;
+      padding: 12px 16px;
+      margin-bottom: 18px;
+      font-size: 0.87rem;
+      color: var(--text-brown);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      box-shadow: 0 2px 8px rgba(254, 229, 0, 0.25);
+    }
+
+    .disclaimer-banner .pill {
+      background-color: var(--text-brown);
+      color: var(--kakao-yellow);
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* Header - KakaoTalk Profile / Chatroom Header Feel */
+    header {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 24px 26px;
+      margin-bottom: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+    }
+
+    .header-main h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      letter-spacing: -0.5px;
+    }
+
+    .nvda-badge {
+      background-color: var(--kakao-yellow);
+      color: var(--text-brown);
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 999px;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .header-meta {
+      font-size: 0.88rem;
+      color: var(--text-sub);
+      margin-top: 6px;
+    }
+
+    .header-meta strong {
+      color: var(--text-main);
+    }
+
+    .price-hero {
+      text-align: right;
+    }
+
+    .price-current {
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      color: var(--text-main);
+    }
+
+    .price-change {
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 999px;
+      display: inline-block;
+      margin-top: 4px;
+    }
+
+    .price-down {
+      background-color: #EFF6FF;
+      color: #2563EB;
+    }
+
+    .price-up {
+      background-color: #FEF2F2;
+      color: #DC2626;
+    }
+
+    /* Legend / Classification Guide */
+    .legend-box {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid var(--card-border);
+      padding: 12px 18px;
+      border-radius: 14px;
+      margin-bottom: 20px;
+      font-size: 0.83rem;
+      color: var(--text-sub);
+    }
+
+    .legend-box strong {
+      color: var(--text-main);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Grid Layout */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .col-12 { grid-column: span 12; }
+    .col-8  { grid-column: span 8; }
+    .col-4  { grid-column: span 4; }
+    .col-6  { grid-column: span 6; }
+
+    @media (max-width: 900px) {
+      .col-8, .col-4, .col-6 { grid-column: span 12; }
+      .price-hero { text-align: left; }
+    }
+
+    /* Card Component - Soft Rounded Kakao Bubble Card */
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 22px;
+      position: relative;
+      box-shadow: 0 3px 14px rgba(15, 23, 42, 0.04);
+    }
+
+    .card-title {
+      font-size: 1.12rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #F1F5F9;
+      padding-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 8px;
+      letter-spacing: -0.3px;
+    }
+
+    .card-title-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* Badges for Classification - Clean Pill Style */
+    .tag {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .tag-fact {
+      background-color: #DCFCE7;
+      color: #15803D;
+    }
+
+    .tag-ai {
+      background-color: #FEE500;
+      color: #3C1E1E;
+    }
+
+    .tag-unverified {
+      background-color: #FEF3C7;
+      color: #B45309;
+    }
+
+    .tag-read {
+      background-color: #E0F2FE;
+      color: #0369A1;
+    }
+
+    .tag-blocked {
+      background-color: #FEE2E2;
+      color: #B91C1C;
+    }
+
+    /* Top Summary: Side-by-Side Fact vs AI Interpretation */
+    .split-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .split-summary {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .split-col {
+      border-radius: 16px;
+      padding: 18px;
+    }
+
+    .split-col.fact-col {
+      background-color: #F8FAFC;
+      border: 1px solid #E2E8F0;
+    }
+
+    .split-col.ai-col {
+      background-color: var(--kakao-yellow-soft);
+      border: 1px solid #FDE68A;
+    }
+
+    .split-col-title {
+      font-size: 0.96rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .simple-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 0.91rem;
+      color: #333333;
+    }
+
+    .simple-list li {
+      line-height: 1.6;
+      padding-left: 14px;
+      position: relative;
+    }
+
+    .simple-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: var(--text-brown);
+      font-weight: 800;
+    }
+
+    .glossary-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 0.84rem;
+      color: #475569;
+    }
+
+    .glossary-item strong {
+      color: var(--text-main);
+    }
+
+    /* Info Key-Value Rows */
+    .info-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .info-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.91rem;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #F1F5F9;
+    }
+
+    .info-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .info-label {
+      color: var(--text-sub);
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+
+    .info-value {
+      font-weight: 700;
+      text-align: right;
+      color: var(--text-main);
+      word-break: keep-all;
+    }
+
+    /* Chart Container */
+    .chart-wrapper {
+      position: relative;
+      height: 330px;
+      width: 100%;
+    }
+
+    /* Beginner Guide Callout - Soft Kakao Yellow Speech Bubble */
+    .beginner-callout {
+      background: var(--kakao-yellow-soft);
+      border: 1px solid #FDE68A;
+      padding: 13px 16px;
+      border-radius: 14px;
+      margin-top: 14px;
+      font-size: 0.88rem;
+      color: var(--text-brown);
+    }
+
+    /* Quick Metrics */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .metric-box {
+      background-color: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 14px;
+      padding: 13px 10px;
+      text-align: center;
+    }
+
+    .metric-title {
+      font-size: 0.78rem;
+      color: var(--text-sub);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .metric-num {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    /* Checklist */
+    .checklist-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 14px;
+      padding: 12px 14px;
+      background: #F8FAFC;
+      border-radius: 14px;
+      font-size: 0.91rem;
+    }
+
+    .checklist-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .checklist-icon {
+      font-size: 1.15rem;
+      line-height: 1.3;
+    }
+
+    .checklist-content strong {
+      display: block;
+      color: var(--text-main);
+      margin-bottom: 3px;
+      font-weight: 700;
+    }
+
+    .checklist-content span {
+      color: var(--text-sub);
+      font-size: 0.86rem;
+    }
+
+    /* Data table */
+    .table-responsive {
+      max-height: 250px;
+      overflow-y: auto;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      margin-top: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      text-align: right;
+    }
+
+    th, td {
+      padding: 9px 12px;
+      border-bottom: 1px solid #F1F5F9;
+    }
+
+    th {
+      background-color: #F8FAFC;
+      color: var(--text-sub);
+      font-weight: 700;
+      position: sticky;
+      top: 0;
+    }
+
+    th:first-child, td:first-child {
+      text-align: left;
+    }
+
+    tr:hover {
+      background-color: #FFFDF0;
+    }
+
+    /* Interactive Buttons - Kakao Pill Style */
+    .toggle-btn {
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: all 0.15s ease;
+    }
+
+    .toggle-btn:hover {
+      background: var(--kakao-yellow);
+      border-color: var(--kakao-yellow-border);
+      color: var(--text-brown);
+    }
+
+    /* News Section Styles */
+    .causality-notice {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-left: 4px solid var(--text-brown);
+      border-radius: 12px;
+      padding: 13px 16px;
+      margin-bottom: 16px;
+      font-size: 0.86rem;
+      color: #334155;
+    }
+
+    .news-filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background: #F1F5F9;
+      border: 1px solid transparent;
+      color: var(--text-sub);
+      padding: 6px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.79rem;
+      font-weight: 700;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--kakao-yellow);
+      border-color: var(--kakao-yellow-border);
+      color: var(--text-brown);
+    }
+
+    .news-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .news-list {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .news-item {
+      background: #FFFFFF;
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .news-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+      border-color: #CBD5E1;
+    }
+
+    .news-badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .news-title {
+      font-size: 0.96rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.45;
+      word-break: keep-all;
+    }
+
+    .news-title a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .news-title a:hover {
+      color: #2563EB;
+      text-decoration: underline;
+    }
+
+    .news-meta {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+    }
+
+    .news-summary {
+      font-size: 0.86rem;
+      color: #334155;
+      line-height: 1.6;
+      background: #F8FAFC;
+      padding: 11px 13px;
+      border-radius: 12px;
+    }
+
+    .news-summary.unopened {
+      background: #FFFBEB;
+      color: #92400E;
+      font-style: italic;
+    }
+
+    .news-link {
+      font-size: 0.82rem;
+      color: #2563EB;
+      text-decoration: none;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      align-self: flex-start;
+    }
+
+    .news-link:hover {
+      text-decoration: underline;
+    }
+
+    .inline-source {
+      font-size: 0.78rem;
+      color: #2563EB;
+      text-decoration: none;
+      font-weight: 600;
+      margin-left: 4px;
+    }
+
+    .inline-source:hover {
+      text-decoration: underline;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid #CBD5E1;
+      padding: 24px 0 8px;
+      color: var(--text-sub);
+      font-size: 0.82rem;
+      text-align: center;
+      line-height: 1.75;
+    }
+
+    /* =========================================================
+       Theme Switcher Bar (Top Utility)
+       ========================================================= */
+    .theme-bar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .theme-switcher {
+      display: inline-flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 100%;
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      border-radius: 20px;
+      padding: 4px;
+      gap: 4px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    }
+
+    @media (max-width: 520px) {
+      .theme-bar {
+        justify-content: center;
+      }
+      .theme-btn {
+        padding: 5px 10px;
+        font-size: 0.74rem;
+      }
+    }
+
+    .theme-btn {
+      border: none;
+      background: transparent;
+      color: #475569;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-family: var(--font-family);
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .theme-btn.active {
+      background: var(--kakao-yellow);
+      color: var(--text-brown);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    }
+
+    /* =========================================================
+       NEW THEME: Sunset Cave Glassmorphism (data-theme="sunset")
+       Inspired by uploaded sunset_bg.jpg
+       ========================================================= */
+    [data-theme="sunset"] {
+      --text-main: #FAF5F0;
+      --text-sub: #C8B8B0;
+      --card-border: rgba(255, 200, 145, 0.16);
+    }
+
+    [data-theme="sunset"] body {
+      background-color: #120C0E;
+      background-image:
+        linear-gradient(180deg, rgba(18, 12, 14, 0.62) 0%, rgba(28, 17, 24, 0.52) 45%, rgba(15, 10, 13, 0.82) 100%),
+        url('sunset_bg.jpg');
+      background-size: cover;
+      background-position: center center;
+      background-attachment: fixed;
+      color: #FAF5F0;
+    }
+
+    [data-theme="sunset"] .theme-switcher {
+      background: rgba(20, 13, 17, 0.68);
+      border: 1px solid rgba(255, 198, 140, 0.24);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    [data-theme="sunset"] .theme-btn {
+      color: #D6C3B8;
+    }
+
+    [data-theme="sunset"] .theme-btn.active {
+      background: linear-gradient(135deg, #F59E0B, #EA580C);
+      color: #FFFFFF;
+      box-shadow: 0 2px 10px rgba(245, 158, 11, 0.4);
+    }
+
+    [data-theme="sunset"] .disclaimer-banner {
+      background: rgba(26, 17, 22, 0.72);
+      border: 1px solid rgba(251, 191, 36, 0.32);
+      color: #FDE68A;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    [data-theme="sunset"] .disclaimer-banner .pill {
+      background: linear-gradient(135deg, #F59E0B, #EA580C);
+      color: #FFFFFF;
+    }
+
+    [data-theme="sunset"] header,
+    [data-theme="sunset"] .card {
+      background: rgba(20, 14, 18, 0.72);
+      border: 1px solid rgba(255, 200, 145, 0.16);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    }
+
+    [data-theme="sunset"] .header-main h1,
+    [data-theme="sunset"] .price-current,
+    [data-theme="sunset"] .card-title,
+    [data-theme="sunset"] .info-value,
+    [data-theme="sunset"] .metric-num,
+    [data-theme="sunset"] .split-col-title,
+    [data-theme="sunset"] .checklist-content strong,
+    [data-theme="sunset"] .news-title,
+    [data-theme="sunset"] .glossary-item strong,
+    [data-theme="sunset"] .header-meta strong,
+    [data-theme="sunset"] .legend-box strong {
+      color: #FAF5F0;
+    }
+
+    [data-theme="sunset"] .nvda-badge {
+      background: linear-gradient(135deg, #F59E0B, #EA580C);
+      color: #FFFFFF;
+    }
+
+    [data-theme="sunset"] .price-down {
+      background: rgba(96, 165, 250, 0.18);
+      border: 1px solid rgba(96, 165, 250, 0.35);
+      color: #93C5FD;
+    }
+
+    [data-theme="sunset"] .price-up {
+      background: rgba(248, 113, 113, 0.18);
+      border: 1px solid rgba(248, 113, 113, 0.35);
+      color: #FCA5A5;
+    }
+
+    [data-theme="sunset"] .legend-box {
+      background: rgba(20, 14, 18, 0.65);
+      border: 1px solid rgba(255, 200, 145, 0.15);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      color: #C8B8B0;
+    }
+
+    [data-theme="sunset"] .card-title {
+      border-bottom: 1px solid rgba(255, 200, 145, 0.14);
+    }
+
+    [data-theme="sunset"] .tag-fact {
+      background: rgba(34, 197, 94, 0.18);
+      border: 1px solid rgba(74, 222, 128, 0.35);
+      color: #86EFAC;
+    }
+
+    [data-theme="sunset"] .tag-ai {
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid rgba(251, 191, 36, 0.4);
+      color: #FDE68A;
+    }
+
+    [data-theme="sunset"] .tag-unverified {
+      background: rgba(251, 146, 60, 0.2);
+      border: 1px solid rgba(251, 146, 60, 0.4);
+      color: #FDBA74;
+    }
+
+    [data-theme="sunset"] .tag-read {
+      background: rgba(56, 189, 248, 0.18);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #7DD3FC;
+    }
+
+    [data-theme="sunset"] .tag-blocked {
+      background: rgba(248, 113, 113, 0.18);
+      border: 1px solid rgba(248, 113, 113, 0.35);
+      color: #FCA5A5;
+    }
+
+    [data-theme="sunset"] .split-col.fact-col {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 200, 145, 0.14);
+    }
+
+    [data-theme="sunset"] .split-col.ai-col {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(168, 85, 247, 0.1));
+      border: 1px solid rgba(251, 191, 36, 0.28);
+    }
+
+    [data-theme="sunset"] .simple-list,
+    [data-theme="sunset"] .glossary-bar,
+    [data-theme="sunset"] .checklist-content span,
+    [data-theme="sunset"] .news-summary,
+    [data-theme="sunset"] .causality-notice {
+      color: #E7DCD5;
+    }
+
+    [data-theme="sunset"] .simple-list li::before {
+      color: #FBBF24;
+    }
+
+    [data-theme="sunset"] .glossary-bar,
+    [data-theme="sunset"] .metric-box,
+    [data-theme="sunset"] .checklist-item,
+    [data-theme="sunset"] .news-summary,
+    [data-theme="sunset"] .causality-notice {
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 200, 145, 0.12);
+    }
+
+    [data-theme="sunset"] .causality-notice {
+      border-left: 4px solid #F59E0B;
+    }
+
+    [data-theme="sunset"] .beginner-callout {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(251, 191, 36, 0.28);
+      color: #FDE68A;
+    }
+
+    [data-theme="sunset"] .info-item {
+      border-bottom: 1px solid rgba(255, 200, 145, 0.1);
+    }
+
+    [data-theme="sunset"] .news-item {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 200, 145, 0.14);
+    }
+
+    [data-theme="sunset"] .news-item:hover {
+      border-color: rgba(251, 191, 36, 0.45);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    [data-theme="sunset"] .news-summary.unopened {
+      background: rgba(245, 158, 11, 0.1);
+      color: #FCD34D;
+    }
+
+    [data-theme="sunset"] .toggle-btn,
+    [data-theme="sunset"] .filter-btn {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 200, 145, 0.2);
+      color: #E7DCD5;
+    }
+
+    [data-theme="sunset"] .toggle-btn:hover,
+    [data-theme="sunset"] .filter-btn.active,
+    [data-theme="sunset"] .filter-btn:hover {
+      background: linear-gradient(135deg, #F59E0B, #EA580C);
+      border-color: transparent;
+      color: #FFFFFF;
+    }
+
+    [data-theme="sunset"] .news-link,
+    [data-theme="sunset"] .inline-source {
+      color: #FBBF24;
+    }
+
+    [data-theme="sunset"] .table-responsive {
+      border-color: rgba(255, 200, 145, 0.16);
+    }
+
+    [data-theme="sunset"] th {
+      background: rgba(28, 19, 24, 0.92);
+      color: #D6C3B8;
+    }
+
+    [data-theme="sunset"] th,
+    [data-theme="sunset"] td {
+      border-bottom: 1px solid rgba(255, 200, 145, 0.08);
+    }
+
+    [data-theme="sunset"] tr:hover {
+      background: rgba(251, 191, 36, 0.07);
+    }
+
+    [data-theme="sunset"] footer {
+      border-top: 1px solid rgba(255, 200, 145, 0.16);
+      color: #C8B8B0;
+    }
+
+    /* =========================================================
+       NEW THEME: NVIDIA Signature Official Style (data-theme="nvidia")
+       Pitch-black obsidian + NVIDIA Green (#76B900)
+       ========================================================= */
+    [data-theme="nvidia"] {
+      --text-main: #FFFFFF;
+      --text-sub: #A3A3A3;
+      --card-border: #262626;
+    }
+
+    [data-theme="nvidia"] body {
+      background-color: #000000;
+      background-image: radial-gradient(circle at 80% 0%, rgba(118, 185, 0, 0.14) 0%, rgba(0, 0, 0, 0) 45%);
+      color: #FFFFFF;
+    }
+
+    [data-theme="nvidia"] .theme-switcher {
+      background: #141414;
+      border: 1px solid #2E2E2E;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+    }
+
+    [data-theme="nvidia"] .theme-btn {
+      color: #A3A3A3;
+    }
+
+    [data-theme="nvidia"] .theme-btn.active {
+      background: #76B900;
+      color: #000000;
+      box-shadow: 0 0 14px rgba(118, 185, 0, 0.45);
+    }
+
+    [data-theme="nvidia"] .disclaimer-banner {
+      background: #111111;
+      border: 1px solid rgba(118, 185, 0, 0.45);
+      color: #E5E5E5;
+      box-shadow: none;
+    }
+
+    [data-theme="nvidia"] .disclaimer-banner .pill {
+      background: #76B900;
+      color: #000000;
+    }
+
+    [data-theme="nvidia"] header,
+    [data-theme="nvidia"] .card {
+      background: #111111;
+      border: 1px solid #262626;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    [data-theme="nvidia"] .header-main h1,
+    [data-theme="nvidia"] .price-current,
+    [data-theme="nvidia"] .card-title,
+    [data-theme="nvidia"] .info-value,
+    [data-theme="nvidia"] .metric-num,
+    [data-theme="nvidia"] .split-col-title,
+    [data-theme="nvidia"] .checklist-content strong,
+    [data-theme="nvidia"] .news-title,
+    [data-theme="nvidia"] .glossary-item strong,
+    [data-theme="nvidia"] .header-meta strong,
+    [data-theme="nvidia"] .legend-box strong {
+      color: #FFFFFF;
+    }
+
+    [data-theme="nvidia"] .nvda-badge {
+      background: #76B900;
+      color: #000000;
+      border-radius: 4px;
+    }
+
+    [data-theme="nvidia"] .price-down {
+      background: rgba(59, 130, 246, 0.16);
+      border: 1px solid rgba(59, 130, 246, 0.35);
+      color: #60A5FA;
+    }
+
+    [data-theme="nvidia"] .price-up {
+      background: rgba(118, 185, 0, 0.18);
+      border: 1px solid rgba(118, 185, 0, 0.45);
+      color: #9AE614;
+    }
+
+    [data-theme="nvidia"] .legend-box {
+      background: #111111;
+      border: 1px solid #262626;
+      border-radius: 10px;
+      color: #A3A3A3;
+    }
+
+    [data-theme="nvidia"] .card-title {
+      border-bottom: 1px solid #262626;
+    }
+
+    [data-theme="nvidia"] .tag-fact {
+      background: rgba(118, 185, 0, 0.18);
+      border: 1px solid #76B900;
+      color: #9AE614;
+    }
+
+    [data-theme="nvidia"] .tag-ai {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid #525252;
+      color: #FFFFFF;
+    }
+
+    [data-theme="nvidia"] .tag-unverified {
+      background: rgba(234, 179, 8, 0.15);
+      border: 1px solid rgba(234, 179, 8, 0.45);
+      color: #FDE047;
+    }
+
+    [data-theme="nvidia"] .tag-read {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #7DD3FC;
+    }
+
+    [data-theme="nvidia"] .tag-blocked {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #FCA5A5;
+    }
+
+    [data-theme="nvidia"] .split-col.fact-col {
+      background: #181818;
+      border: 1px solid #2A2A2A;
+      border-top: 3px solid #76B900;
+      border-radius: 8px;
+    }
+
+    [data-theme="nvidia"] .split-col.ai-col {
+      background: #181818;
+      border: 1px solid #2A2A2A;
+      border-top: 3px solid #FFFFFF;
+      border-radius: 8px;
+    }
+
+    [data-theme="nvidia"] .simple-list,
+    [data-theme="nvidia"] .glossary-bar,
+    [data-theme="nvidia"] .checklist-content span,
+    [data-theme="nvidia"] .news-summary,
+    [data-theme="nvidia"] .causality-notice {
+      color: #D4D4D4;
+    }
+
+    [data-theme="nvidia"] .simple-list li::before {
+      color: #76B900;
+    }
+
+    [data-theme="nvidia"] .glossary-bar,
+    [data-theme="nvidia"] .metric-box,
+    [data-theme="nvidia"] .checklist-item,
+    [data-theme="nvidia"] .news-summary,
+    [data-theme="nvidia"] .causality-notice {
+      background: #181818;
+      border: 1px solid #262626;
+      border-radius: 8px;
+    }
+
+    [data-theme="nvidia"] .causality-notice {
+      border-left: 4px solid #76B900;
+    }
+
+    [data-theme="nvidia"] .beginner-callout {
+      background: rgba(118, 185, 0, 0.1);
+      border: 1px solid rgba(118, 185, 0, 0.35);
+      border-radius: 8px;
+      color: #E5E5E5;
+    }
+
+    [data-theme="nvidia"] .info-item {
+      border-bottom: 1px solid #222222;
+    }
+
+    [data-theme="nvidia"] .news-item {
+      background: #161616;
+      border: 1px solid #262626;
+      border-radius: 8px;
+    }
+
+    [data-theme="nvidia"] .news-item:hover {
+      border-color: #76B900;
+      box-shadow: 0 6px 20px rgba(118, 185, 0, 0.12);
+    }
+
+    [data-theme="nvidia"] .news-summary.unopened {
+      background: rgba(234, 179, 8, 0.08);
+      color: #FDE047;
+    }
+
+    [data-theme="nvidia"] .toggle-btn,
+    [data-theme="nvidia"] .filter-btn {
+      background: #1A1A1A;
+      border: 1px solid #333333;
+      color: #D4D4D4;
+      border-radius: 6px;
+    }
+
+    [data-theme="nvidia"] .toggle-btn:hover,
+    [data-theme="nvidia"] .filter-btn.active,
+    [data-theme="nvidia"] .filter-btn:hover {
+      background: #76B900;
+      border-color: #76B900;
+      color: #000000;
+    }
+
+    [data-theme="nvidia"] .news-link,
+    [data-theme="nvidia"] .inline-source {
+      color: #9AE614;
+    }
+
+    [data-theme="nvidia"] .table-responsive {
+      border-color: #262626;
+    }
+
+    [data-theme="nvidia"] th {
+      background: #1A1A1A;
+      color: #A3A3A3;
+    }
+
+    [data-theme="nvidia"] th,
+    [data-theme="nvidia"] td {
+      border-bottom: 1px solid #222222;
+    }
+
+    [data-theme="nvidia"] tr:hover {
+      background: rgba(118, 185, 0, 0.08);
+    }
+
+    [data-theme="nvidia"] footer {
+      border-top: 1px solid #262626;
+      color: #888888;
+    }
+
+    /* Print / PDF Save Button */
+    .print-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(15, 23, 42, 0.14);
+      color: #191919;
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-family: var(--font-family);
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+      transition: all 0.2s ease;
+    }
+
+    .print-btn:hover {
+      background: #191919;
+      color: #FFFFFF;
+    }
+
+    [data-theme="sunset"] .print-btn {
+      background: rgba(20, 13, 17, 0.72);
+      border: 1px solid rgba(255, 198, 140, 0.28);
+      color: #FAF5F0;
+    }
+
+    [data-theme="sunset"] .print-btn:hover {
+      background: linear-gradient(135deg, #F59E0B, #EA580C);
+      border-color: transparent;
+      color: #FFFFFF;
+    }
+
+    [data-theme="nvidia"] .print-btn {
+      background: #141414;
+      border: 1px solid #333333;
+      color: #FFFFFF;
+    }
+
+    [data-theme="nvidia"] .print-btn:hover {
+      background: #76B900;
+      border-color: #76B900;
+      color: #000000;
+    }
+
+    .theme-bar {
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* =========================================================
+       Print / PDF Export Styles (@media print)
+       Prevents clipping, forces crisp A4-friendly light contrast
+       ========================================================= */
+    @page {
+      size: A4 portrait;
+      margin: 12mm;
+    }
+
+    @media print {
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+      }
+
+      body,
+      [data-theme="sunset"] body,
+      [data-theme="nvidia"] body {
+        background: #FFFFFF !important;
+        background-image: none !important;
+        color: #111111 !important;
+        padding: 0 !important;
+        font-size: 10pt !important;
+      }
+
+      .container {
+        max-width: 100% !important;
+        width: 100% !important;
+      }
+
+      /* Hide interactive-only UI in print */
+      .theme-bar,
+      .toggle-btn,
+      .news-filters {
+        display: none !important;
+      }
+
+      header,
+      .card,
+      .disclaimer-banner,
+      .legend-box,
+      [data-theme="sunset"] header,
+      [data-theme="sunset"] .card,
+      [data-theme="nvidia"] header,
+      [data-theme="nvidia"] .card {
+        background: #FFFFFF !important;
+        border: 1px solid #CBD5E1 !important;
+        color: #111111 !important;
+        border-radius: 10px !important;
+        padding: 14px !important;
+        margin-bottom: 12px !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+
+      /* Allow large news card to break across pages while keeping each item intact */
+      #news-section {
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+      }
+
+      .dashboard-grid {
+        display: block !important;
+      }
+
+      .col-12, .col-8, .col-4, .col-6 {
+        width: 100% !important;
+        margin-bottom: 12px !important;
+      }
+
+      .split-summary {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+      }
+
+      .split-col,
+      .metric-box,
+      .checklist-item,
+      .news-item,
+      .glossary-bar,
+      .beginner-callout,
+      .causality-notice {
+        background: #F8FAFC !important;
+        border: 1px solid #CBD5E1 !important;
+        color: #111111 !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+
+      .header-main h1,
+      .price-current,
+      .card-title,
+      .info-value,
+      .metric-num,
+      .split-col-title,
+      .checklist-content strong,
+      .news-title,
+      .glossary-item strong,
+      .header-meta strong,
+      .legend-box strong,
+      .simple-list,
+      .news-summary,
+      .checklist-content span,
+      .news-meta,
+      footer {
+        color: #111111 !important;
+      }
+
+      .news-list {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+      }
+
+      .chart-wrapper {
+        height: 240px !important;
+        width: 100% !important;
+      }
+
+      canvas#nvdaChart {
+        max-width: 100% !important;
+        height: 240px !important;
+      }
+
+      a, .news-link, .inline-source {
+        color: #1D4ED8 !important;
+        text-decoration: underline !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Theme Switcher & Print Bar -->
+  <div class="theme-bar">
+    <button class="print-btn" id="btn-print-pdf" onclick="printReport()">🖨️ 인쇄 / PDF 저장</button>
+    <div class="theme-switcher" role="group" aria-label="테마 선택">
+      <button class="theme-btn active" id="btn-theme-sunset" onclick="setTheme('sunset')">🌅 선셋 글래스</button>
+      <button class="theme-btn" id="btn-theme-nvidia" onclick="setTheme('nvidia')">🟢 NVIDIA 시그니처</button>
+      <button class="theme-btn" id="btn-theme-kakao" onclick="setTheme('kakao')">💬 카카오톡 스타일</button>
+    </div>
+  </div>
+
+  <!-- AI & Real-time Warning Banner -->
+  <div class="disclaimer-banner">
+    <span class="pill">알림 & 유의사항</span>
+    <span>본 대시보드는 <strong>AI 초안</strong>으로 생성되었으며, 저장된 공개 통계(Yahoo Finance 공시 데이터)를 기준으로 작성되었습니다. <strong>실시간 시세가 아니며 투자 권유가 아닙니다.</strong></span>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="header-main">
+      <h1>
+        NVIDIA Corporation
+        <span class="nvda-badge">NASDAQ: NVDA</span>
+      </h1>
+      <div class="header-meta">
+        <span>거래소: <strong>나스닥 (NASDAQ / NMS)</strong></span> &bull;
+        <span>통화: <strong>USD ($)</strong></span> &bull;
+        <span>자료 기준일: <strong>2026-11-20 (장마감 종가 기준)</strong></span>
+      </div>
+    </div>
+    <div class="price-hero">
+      <div class="price-current" id="latest-price">$125.53</div>
+      <div class="price-change price-down">
+        <span>최근 1개월: -43.45% (-$96.44)</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Classification Legend -->
+  <div class="legend-box">
+    <strong>정보 구분 가이드:</strong>
+    <div class="legend-item"><span class="tag tag-fact">사실 (Fact)</span> 거래소·공시·수집 확정 통계 데이터</div>
+    <div class="legend-item"><span class="tag tag-ai">AI 해석 (AI Analysis)</span> 시장 동향 및 가격 흐름에 대한 분석 요약</div>
+    <div class="legend-item"><span class="tag tag-unverified">확인 필요 (Unverified)</span> 단기 소문 및 추후 공시 확인 대상</div>
+  </div>
+
+  <!-- Dashboard Grid -->
+  <div class="dashboard-grid">
+
+    <!-- 0. Top Key Summary: Fact vs AI Interpretation Side-by-Side (12 cols) -->
+    <div class="card col-12">
+      <div class="card-title">
+        <div class="card-title-left">
+          <span>⚡ 핵심 먼저 보기: 사실과 해석 나란히 비교</span>
+          <span class="tag tag-fact">사실</span>
+          <span class="tag tag-ai">AI 해석</span>
+        </div>
+      </div>
+
+      <div class="split-summary">
+        <!-- Left: Fact -->
+        <div class="split-col fact-col">
+          <div class="split-col-title">
+            <span class="tag tag-fact">사실 (Fact)</span>
+            <span>확인된 숫자와 날짜</span>
+          </div>
+          <ul class="simple-list">
+            <li><strong>1개월 최고가:</strong> 2026-10-21 종가 <strong>$221.97</strong> <a class="inline-source" href="https://finance.yahoo.com/quote/NVDA/history/" target="_blank" rel="noopener noreferrer">[Yahoo Finance]</a></li>
+            <li><strong>최근 마감가:</strong> 2026-11-20 종가 <strong>$125.53</strong> (1개월 전보다 <strong>-43.45%</strong>, -$96.44)</li>
+            <li><strong>최대 거래량:</strong> 2026-11-12 하루 <strong>7.48억 주</strong>가 거래되어 평소보다 크게 늘었습니다.</li>
+            <li><strong>공식 발표:</strong> 공급망 장기 계약 확대(11/17), MS Azure 협력(11/19) 등 사업 발표가 있었습니다. <a class="inline-source" href="#news-section">[뉴스 보기]</a></li>
+          </ul>
+        </div>
+
+        <!-- Right: AI Interpretation -->
+        <div class="split-col ai-col">
+          <div class="split-col-title">
+            <span class="tag tag-ai">AI 해석</span>
+            <span>입문자를 위한 쉬운 풀이</span>
+          </div>
+          <ul class="simple-list">
+            <li><strong>흐름 요약:</strong> 10월 말까지는 $200 위에서 안정적이었지만, 11월 들어 가격이 빠르게 내려왔습니다.</li>
+            <li><strong>거래량 급증 의미:</strong> 11월 12일처럼 거래량이 평소보다 몇 배 늘면, 사고파는 의견이 크게 부딪혔다는 신호로 봅니다.</li>
+            <li><strong>원인 단정 주의:</strong> 같은 시기에 경영진 교체·규제 조사 보도가 있었지만, 특정 기사 하나가 하락의 전부라고 단정할 수는 없습니다. <a class="inline-source" href="https://www.fool.com/investing/2026/11/20/here-is-why-nvidia-stock-crashed-on-friday/" target="_blank" rel="noopener noreferrer">[참고 보도]</a></li>
+            <li><strong>지금 할 일:</strong> 가격 변동이 큰 구간이므로 헤드라인만 보지 말고 공식 공시와 실적 자료를 함께 확인하세요.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="glossary-bar">
+        <div class="glossary-item">📘 <strong>종가:</strong> 하루 거래가 끝날 때의 마지막 가격</div>
+        <div class="glossary-item">📘 <strong>거래량:</strong> 하루 동안 사고팔린 주식 수</div>
+        <div class="glossary-item">📘 <strong>시가총액:</strong> 주가 × 전체 주식 수(회사 몸값)</div>
+        <div class="glossary-item">📘 <strong>SEC 공시:</strong> 미국 금융당국에 내는 공식 보고서</div>
+      </div>
+    </div>
+
+    <!-- 1. Stock Chart Card (8 cols) -->
+    <div class="card col-8">
+      <div class="card-title">
+        <div class="card-title-left">
+          <span>📈 최근 1개월 일별 종가(Close) 추이</span>
+          <span class="tag tag-fact">사실</span>
+        </div>
+        <div>
+          <button class="toggle-btn" id="toggleViewBtn" onclick="toggleTableView()">원시 데이터 보기</button>
+        </div>
+      </div>
+
+      <!-- Quick Metrics -->
+      <div class="metric-grid">
+        <div class="metric-box">
+          <div class="metric-title">1개월 최고가 (10/21)</div>
+          <div class="metric-num" style="color: #16A34A;">$221.97</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-title">1개월 최저가 (11/20)</div>
+          <div class="metric-num" style="color: #2563EB;">$125.53</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-title">1개월 총 거래일수</div>
+          <div class="metric-num">23 영업일</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-title">최대 거래량일 (11/12)</div>
+          <div class="metric-num">7.48억 주</div>
+        </div>
+      </div>
+
+      <div class="chart-wrapper" id="chartContainer">
+        <canvas id="nvdaChart"></canvas>
+      </div>
+
+      <div id="tableContainer" style="display: none;">
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>날짜 (일)</th>
+                <th>시가 (Open)</th>
+                <th>고가 (High)</th>
+                <th>저가 (Low)</th>
+                <th>종가 (Close)</th>
+                <th>거래량 (Volume)</th>
+              </tr>
+            </thead>
+            <tbody id="priceTableBody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="beginner-callout">
+        💡 <strong>차트 쉽게 읽기:</strong> 선이 내려갈수록 주가가 낮아졌다는 뜻입니다. 10월 21일 $221.97에서 11월 20일 $125.53까지 내려왔으며, 오른쪽 위 버튼으로 날짜별 숫자 표도 볼 수 있습니다.
+      </div>
+    </div>
+
+    <!-- 2. Company Info Card (4 cols) -->
+    <div class="card col-4">
+      <div class="card-title">
+        <div class="card-title-left">
+          <span>🏢 엔비디아 회사 소개</span>
+          <span class="tag tag-fact">사실</span>
+        </div>
+      </div>
+      <div class="info-list">
+        <div class="info-item">
+          <span class="info-label">기업명</span>
+          <span class="info-value">NVIDIA Corporation</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">종목코드 / 거래소</span>
+          <span class="info-value">NVDA (NASDAQ NMS)</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">설립일 / 본사</span>
+          <span class="info-value">1993년 / 미국 캘리포니아주 산타클라라</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">공동 창립자</span>
+          <span class="info-value">젠슨 황, 크리스 말라초스키, 커티스 프림</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">현재 경영진</span>
+          <span class="info-value">콜레트 크레스 (임시 CEO / CFO)</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">주요 사업 영역</span>
+          <span class="info-value">AI 반도체(GPU), 데이터센터, CUDA 소프트웨어</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">시가총액 규모</span>
+          <span class="info-value">약 3조 달러 내외 (글로벌 최상위권)</span>
+        </div>
+      </div>
+
+      <div class="beginner-callout" style="margin-top: 16px;">
+        🔍 <strong>쉽게 말하면 어떤 회사인가요?</strong><br>
+        ChatGPT 같은 AI를 만들고 돌리는 데 꼭 필요한 고성능 AI 칩(GPU)을 만드는 세계 1위 기업입니다.
+      </div>
+    </div>
+
+    <!-- 3. What to Check Next (12 cols) -->
+    <div class="card col-12">
+      <div class="card-title">
+        <div class="card-title-left">
+          <span>🧐 입문자가 더 확인할 것 (체크리스트)</span>
+          <span class="tag tag-unverified">확인 필요</span>
+        </div>
+      </div>
+      <div>
+        <div class="checklist-item">
+          <div class="checklist-icon">⚠️</div>
+          <div class="checklist-content">
+            <strong>공식 보고서(SEC 공시)로 소문 확인하기</strong>
+            <span>경영진 교체나 회계 조사 관련 뉴스는 소문과 사실이 섞일 수 있습니다. 미국 증권거래위원회(SEC)의 공식 공시(Form 8-K, 10-Q)를 직접 확인하세요.</span>
+          </div>
+        </div>
+
+        <div class="checklist-item">
+          <div class="checklist-icon">📅</div>
+          <div class="checklist-content">
+            <strong>다음 실적 발표와 회사 전망(가이던스) 확인하기</strong>
+            <span>마이크로소프트·구글·메타 같은 대형 고객사가 AI 서버 투자를 계속 늘리는지, 회사가 발표한 실적 전망을 살펴보세요.</span>
+          </div>
+        </div>
+
+        <div class="checklist-item">
+          <div class="checklist-icon">🔄</div>
+          <div class="checklist-content">
+            <strong>달러 환율 변화 함께 보기</strong>
+            <span>미국 주식은 달러로 거래됩니다. 주가가 같아도 원/달러 환율이 오르내리면 내가 받는 원화 금액이 달라집니다.</span>
+          </div>
+        </div>
+
+        <div class="checklist-item">
+          <div class="checklist-icon">🛡️</div>
+          <div class="checklist-content">
+            <strong>한 번에 사지 않고 나눠서 접근하기</strong>
+            <span>요즘처럼 하루에 가격이 크게 움직일 때는 한 번에 큰돈을 넣기보다, 감당할 수 있는 금액을 정해 나눠서 고민하는 편이 안전합니다.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Related News Section (12 cols) -->
+    <div class="card col-12" id="news-section">
+      <div class="card-title">
+        <div class="card-title-left">
+          <span>📰 엔비디아(NVDA) 관련 최근 뉴스 (10건)</span>
+          <span class="tag tag-fact">출처 연결</span>
+        </div>
+        <div class="news-filters">
+          <button class="filter-btn active" onclick="filterNews('all', this)">전체 (10)</button>
+          <button class="filter-btn" onclick="filterNews('read', this)">본문 열람·요약 (7)</button>
+          <button class="filter-btn" onclick="filterNews('unopened', this)">제목만/접근불가 (3)</button>
+        </div>
+      </div>
+
+      <div class="causality-notice">
+        ⚠️ <strong>사실·해석 구분 및 인과관계 주의 안내:</strong> 아래 뉴스는 2026-11-21 기준 수집된 공개 보도자료 및 외신 기사입니다. <strong>본문을 실제로 열람한 7건만 요약</strong>했으며, 제목만 확인했거나 서버 접근 제한(HTTP 403)으로 본문을 읽지 못한 3건은 내용을 지어내지 않고 상태를 그대로 표기했습니다. 또한 <strong>특정 뉴스 보도와 주가 변동 시점이 겹치더라도, 해당 뉴스가 주가 변화의 직접적·단일 원인이라고 단정할 수 없습니다.</strong>
+      </div>
+
+      <div class="news-list" id="newsList">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+
+  </div> <!-- End Dashboard Grid -->
+
+  <!-- Footer -->
+  <footer>
+    <p>
+      <strong>데이터 및 출처 정보:</strong><br>
+      • 주가 데이터 출처: Yahoo Finance Historical Chart API & Nasdaq 공식 시세 기준 수집 데이터 (2026-11-20 마감 종가 기준)<br>
+      • 뉴스 데이터 출처: NVIDIA Newsroom / NVIDIA Blog 공식 보도자료 및 Yahoo Finance RSS (2026-11-21 수집)<br>
+      • 종목코드: NVDA | 거래소: NASDAQ (NMS) | 거래 통화: USD ($)<br>
+      • 본 문서는 AI 어시스턴트 초안으로 생성되었으며, 실시간 시세가 아닙니다. 투자에 대한 최종 책임은 투자자 본인에게 있습니다.
+    </p>
+  </footer>
+
+</div>
+
+<script>
+  // Raw Data saved locally
+  const stockData = [
+    { date: "2026-10-21", open: 220.96, high: 222.19, low: 217.66, close: 221.97, volume: 87085700 },
+    { date: "2026-10-22", open: 217.13, high: 218.88, low: 211.26, close: 212.21, volume: 125407600 },
+    { date: "2026-10-23", open: 210.99, high: 213.85, low: 210.18, close: 210.96, volume: 80189800 },
+    { date: "2026-10-26", open: 213.11, high: 217.75, low: 212.61, close: 216.00, volume: 90829300 },
+    { date: "2026-10-27", open: 218.31, high: 219.19, low: 215.53, close: 217.94, volume: 84799700 },
+    { date: "2026-10-28", open: 219.92, high: 219.99, low: 214.47, close: 215.38, volume: 93030200 },
+    { date: "2026-10-29", open: 214.36, high: 215.33, low: 212.08, close: 213.66, volume: 77568100 },
+    { date: "2026-10-30", open: 208.94, high: 209.06, low: 200.92, close: 204.64, volume: 168386400 },
+    { date: "2026-11-02", open: 207.53, high: 209.98, low: 201.66, close: 202.06, volume: 119272200 },
+    { date: "2026-11-03", open: 207.96, high: 209.14, low: 205.93, close: 206.69, volume: 91943400 },
+    { date: "2026-11-04", open: 203.50, high: 206.79, low: 199.68, close: 200.13, volume: 149033300 },
+    { date: "2026-11-05", open: 196.07, high: 196.25, low: 181.46, close: 181.60, volume: 306127800 },
+    { date: "2026-11-06", open: 191.10, high: 194.90, low: 185.22, close: 186.64, volume: 180212300 },
+    { date: "2026-11-09", open: 173.07, high: 179.92, low: 170.24, close: 178.67, volume: 462719300 },
+    { date: "2026-11-10", open: 173.97, high: 174.69, low: 165.89, close: 168.89, volume: 429273200 },
+    { date: "2026-11-11", open: 172.80, high: 177.54, low: 170.77, close: 173.73, volume: 339214800 },
+    { date: "2026-11-12", open: 151.01, high: 167.14, low: 148.80, close: 166.19, volume: 747707600 },
+    { date: "2026-11-13", open: 169.91, high: 170.00, low: 158.39, close: 162.85, volume: 365796600 },
+    { date: "2026-11-16", open: 159.02, high: 163.20, low: 155.01, close: 156.14, volume: 333822100 },
+    { date: "2026-11-17", open: 156.90, high: 158.19, low: 150.33, close: 155.46, volume: 406985100 },
+    { date: "2026-11-18", open: 159.19, high: 159.70, low: 150.40, close: 150.96, volume: 349791400 },
+    { date: "2026-11-19", open: 152.92, high: 158.13, low: 145.71, close: 145.98, volume: 322940100 },
+    { date: "2026-11-20", open: 143.52, high: 143.73, low: 124.50, close: 125.53, volume: 626373200 }
+  ];
+
+  // Render Table
+  const tableBody = document.getElementById('priceTableBody');
+  stockData.slice().reverse().forEach(row => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${row.date}</td>
+      <td>$${row.open.toFixed(2)}</td>
+      <td>$${row.high.toFixed(2)}</td>
+      <td>$${row.low.toFixed(2)}</td>
+      <td style="font-weight: bold; color: ${row.close >= row.open ? '#DC2626' : '#2563EB'}">$${row.close.toFixed(2)}</td>
+      <td>${(row.volume / 1000000).toFixed(1)}M</td>
+    `;
+    tableBody.appendChild(tr);
+  });
+
+  // Toggle Table View
+  function toggleTableView() {
+    const chart = document.getElementById('chartContainer');
+    const table = document.getElementById('tableContainer');
+    const btn = document.getElementById('toggleViewBtn');
+    if (table.style.display === 'none') {
+      table.style.display = 'block';
+      chart.style.display = 'none';
+      btn.innerText = '차트로 보기';
+    } else {
+      table.style.display = 'none';
+      chart.style.display = 'block';
+      btn.innerText = '원시 데이터 보기';
+    }
+  }
+
+  // Render Chart.js
+  const ctx = document.getElementById('nvdaChart').getContext('2d');
+  const labels = stockData.map(d => d.date.substring(5)); // '10-21'
+  const closePrices = stockData.map(d => d.close);
+
+  const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+  gradient.addColorStop(0, 'rgba(254, 229, 0, 0.45)');
+  gradient.addColorStop(1, 'rgba(254, 229, 0, 0.0)');
+
+  const myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: '종가 (Close USD)',
+        data: closePrices,
+        borderColor: '#3C1E1E',
+        backgroundColor: gradient,
+        borderWidth: 2.5,
+        fill: true,
+        tension: 0.25,
+        pointBackgroundColor: '#FEE500',
+        pointRadius: 3,
+        pointHoverRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
+      plugins: {
+        legend: {
+          display: true,
+          labels: {
+            color: '#555555',
+            font: { size: 12 }
+          }
+        },
+        tooltip: {
+          backgroundColor: '#191919',
+          titleColor: '#f9fafb',
+          bodyColor: '#FEE500',
+          borderColor: '#374151',
+          borderWidth: 1,
+          padding: 10,
+          callbacks: {
+            label: function(context) {
+              return ' 종가: $' + context.parsed.y.toFixed(2) + ' USD';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: {
+            color: 'rgba(15, 23, 42, 0.05)'
+          },
+          ticks: {
+            color: '#555555',
+            maxRotation: 45,
+            minRotation: 45
+          }
+        },
+        y: {
+          grid: {
+            color: 'rgba(15, 23, 42, 0.07)'
+          },
+          ticks: {
+            color: '#555555',
+            callback: function(val) {
+              return '$' + val;
+            }
+          },
+          suggestedMin: 110,
+          suggestedMax: 230
+        }
+      }
+    }
+  });
+
+  // Related News Data (up to 10 items, collected 2026-11-21)
+  const newsData = [
+    {
+      title: "NVIDIA Announces Upcoming Event for Financial Community",
+      date: "2026-11-19",
+      media: "NVIDIA Newsroom (공식 보도자료)",
+      url: "https://nvidianews.nvidia.com/news/nvidia-announces-upcoming-event-for-financial-community-6929322",
+      readStatus: "read",
+      statusLabel: "본문 열람 완료",
+      categoryTag: "사실 (공식 발표)",
+      categoryClass: "tag-fact",
+      summary: "엔비디아는 2026년 12월 1일(화) 오전 6시 35분(PT) 열리는 '제30회 UBS 글로벌 테크놀로지·AI 컨퍼런스'에 참석해 발표할 예정이며, 투자자 페이지(investor.nvidia.com)에서 실시간 오디오 웹캐스트와 90일간 다시보기를 제공한다고 공식 발표했습니다."
+    },
+    {
+      title: "NVIDIA and Microsoft Expand Accelerated Computing From Azure to Windows PCs",
+      date: "2026-11-19",
+      media: "NVIDIA Blog (공식 블로그)",
+      url: "https://blogs.nvidia.com/blog/microsoft-ignite-accelerated-computing-azure-windows-pcs/",
+      readStatus: "read",
+      statusLabel: "본문 열람 완료",
+      categoryTag: "사실 (공식 발표)",
+      categoryClass: "tag-fact",
+      summary: "마이크로소프트 이그나이트(Ignite)에서 엔비디아와 마이크로소프트가 Azure 내 NVIDIA Vera Rubin NVL72 기반 가상머신(VM) 접근 확대, Microsoft Foundry를 통한 오픈 모델 지원, 빙(Bing) 검색 모델용 RTX PRO 6000 Blackwell GPU 및 Dynamo 추론 소프트웨어 활용 등 풀스택 협력을 확대한다고 발표했습니다."
+    },
+    {
+      title: "NVIDIA RTX Spark Compact Desktops Out Now",
+      date: "2026-11-18",
+      media: "NVIDIA Blog (공식 블로그)",
+      url: "https://blogs.nvidia.com/blog/rtx-spark-desktop-local-ai-available-now/",
+      readStatus: "read",
+      statusLabel: "본문 열람 완료",
+      categoryTag: "사실 (공식 발표)",
+      categoryClass: "tag-fact",
+      summary: "ASUS, Dell, MSI에서 최대 128GB 통합 메모리와 엔비디아 AI 소프트웨어 스택을 탑재한 소형 데스크톱 'NVIDIA RTX Spark'를 출시했으며, 로컬 AI 에이전트 구동, 이미지·영상 생성 및 모델 파인튜닝을 지원한다고 밝혔습니다."
+    },
+    {
+      title: "NVIDIA Expands Commitments With Supply Chain Partners to Support AI Infrastructure Buildout",
+      date: "2026-11-17",
+      media: "NVIDIA Newsroom (공식 보도자료)",
+      url: "https://nvidianews.nvidia.com/news/nvidia-expands-commitments-with-supply-chain-partners-to-support-ai-infrastructure-buildout",
+      readStatus: "read",
+      statusLabel: "본문 열람 완료",
+      categoryTag: "사실 (공식 발표)",
+      categoryClass: "tag-fact",
+      summary: "엔비디아가 AI 인프라 수요에 대응하기 위해 앰코(Amkor), 폭스콘(Foxconn), 킨서스(Kinsus), 삼성전기(Samsung Electro-Mechanics), SPIL, TSMC 등 공급망 파트너들과 기판·첨단 패키징·웨이퍼 및 위탁생산 역량 확대를 위한 장기 공급 계약을 확대했다고 발표했습니다."
+    },
+    {
+      title: "Follow the Smart Money: 4 AI Stocks Billionaire Dan Loeb Just Bought",
+      date: "2026-11-21",
+      media: "The Motley Fool",
+      url: "https://www.fool.com/investing/2026/11/21/follow-the-smart-money-4-ai-stocks-billionaire-dan-loeb-just-bought/",
+      readStatus: "read",
+      statusLabel: "본문 열람 완료",
+      categoryTag: "매체 보도·해석",
+      categoryClass: "tag-ai",
+      summary: "헤지펀드 서드포인트(Third Point)의 댄 로엡(Dan Loeb)이 2026년 3분기에 엔비디아(NVDA), 스페이스X(SPCX), 마이크로소프트(MSFT), 메타(META) 등 AI 관련주 4종목을 매수했다는 내용을 전하며, 매체 필진은 CEO 교체 이후에도 엔비디아의 AI 인프라 선도 지위가 유지된다는 의견을 제시했습니다."
+    },
+    {
+      title: "Here's Why Nvidia Stock Crashed on Friday",
+      date: "2026-11-20",
+      media: "The Motley Fool",
+      url: "https://www.fool.com/investing/2026/11/20/here-is-why-nvidia-stock-crashed-on-friday/",
+      readStatus: "read",
+      statusLabel: "본문 열람 완료",
+      categoryTag: "매체 보도·해석",
+      categoryClass: "tag-ai",
+      summary: "금요일 엔비디아 주가가 약 14% 급락한 것과 관련해, 미국 증권거래위원회(SEC)가 엔비디아의 회계 관행을 조사 중이라는 보도가 매도세를 자극했다는 매체 분석을 전했습니다. (※ 보도 내용과 주가 하락 간 인과관계는 매체의 해석이며 공식 확정 사실이 아님)"
+    },
+    {
+      title: "Has AI's honeymoon ended on Wall Street?",
+      date: "2026-11-21",
+      media: "Yahoo Finance / AFP",
+      url: "https://finance.yahoo.com/markets/stocks/articles/ais-honeymoon-ended-wall-street-004604807.html",
+      readStatus: "read",
+      statusLabel: "본문 열람 완료",
+      categoryTag: "매체 보도·해석",
+      categoryClass: "tag-ai",
+      summary: "나스닥 지수가 금요일 5.28% 급락하며 연초 이후 상승분을 반납한 가운데, 월가에서 AI 산업의 막대한 투자 지출과 수익화 가능성에 대한 우려 및 대규모 가치 재평가(repricing)가 진행 중이라는 애널리스트(Interactive Brokers) 인터뷰를 전했습니다."
+    },
+    {
+      title: "Jensen Huang Passed Billions in Nvidia Stock to His Heirs Months Before His Downfall",
+      date: "2026-11-21",
+      media: "Yahoo Finance (외부 매체 전재)",
+      url: "https://finance.yahoo.com/m/f93688e0-5c36-372b-855e-b722a7cce11d/jensen-huang-passed-billions.html",
+      readStatus: "unopened",
+      statusLabel: "제목만 확인 (본문 미열람)",
+      categoryTag: "확인 필요",
+      categoryClass: "tag-unverified",
+      summary: "RSS 피드를 통해 기사 제목과 원문 링크만 확인했으며, 본문 전체를 열람하지 않았기 때문에 요약을 생략합니다. 원문 링크에서 직접 내용을 확인하세요."
+    },
+    {
+      title: "NVDA Stock Sees Biggest Fall In 22 Months, But Top Analyst Says Nvidia’s AI Boom Isn’t Over Yet — Here Are 5 Reasons Why",
+      date: "2026-11-21",
+      media: "Stocktwits",
+      url: "https://stocktwits.com/news-articles/markets/equity/nvda-stock-fall-nvidia-ai-boom-not-over-yet-top-analyst-5-reasons/cNbmIC8R91h",
+      readStatus: "unopened",
+      statusLabel: "접근 불가 (HTTP 403 / 본문 미확인)",
+      categoryTag: "접근 제한",
+      categoryClass: "tag-blocked",
+      summary: "원격 서버 접근 제한(HTTP 403)으로 본문을 읽지 못해 요약을 생략하고 제목·매체·원문 링크만 그대로 남깁니다."
+    },
+    {
+      title: "Nasdaq 100 Ends Worst Week Since 2020, S&P 500 In Correction Territory As AI Rout Sours Sentiment — ANT, NVDA, TTWO, ZS, CRWD In Focus",
+      date: "2026-11-21",
+      media: "Stocktwits",
+      url: "https://stocktwits.com/news-articles/markets/equity/nasdaq-100-ends-worst-week-since-2020-s-and-p-500-in-correction-territory-as-ai-rout-sours-sentiment-ant-nvda-ttwo-zs-crwd-in-focus/cNbm3xQR91W",
+      readStatus: "unopened",
+      statusLabel: "접근 불가 (HTTP 403 / 본문 미확인)",
+      categoryTag: "접근 제한",
+      categoryClass: "tag-blocked",
+      summary: "원격 서버 접근 제한(HTTP 403)으로 본문을 읽지 못해 요약을 생략하고 제목·매체·원문 링크만 그대로 남깁니다."
+    }
+  ];
+
+  function renderNews(filter) {
+    const container = document.getElementById('newsList');
+    container.innerHTML = '';
+    const filtered = filter === 'all' ? newsData : newsData.filter(item => item.readStatus === filter);
+
+    filtered.forEach((item, idx) => {
+      const statusBadgeClass = item.readStatus === 'read' ? 'tag-read' : (item.statusLabel.includes('403') ? 'tag-blocked' : 'tag-unverified');
+      const summaryClass = item.readStatus === 'read' ? 'news-summary' : 'news-summary unopened';
+
+      const card = document.createElement('article');
+      card.className = 'news-item';
+      card.innerHTML = `
+        <div>
+          <div class="news-badges" style="margin-bottom: 8px;">
+            <span class="tag ${item.categoryClass}">${item.categoryTag}</span>
+            <span class="tag ${statusBadgeClass}">${item.statusLabel}</span>
+          </div>
+          <h3 class="news-title">
+            <a href="${item.url}" target="_blank" rel="noopener noreferrer">${idx + 1}. ${item.title}</a>
+          </h3>
+          <div class="news-meta" style="margin-top: 4px; margin-bottom: 10px;">
+            <span>매체: <strong>${item.media}</strong></span> &bull;
+            <span>날짜: <strong>${item.date}</strong></span>
+          </div>
+          <div class="${summaryClass}">
+            ${item.summary}
+          </div>
+        </div>
+        <a class="news-link" href="${item.url}" target="_blank" rel="noopener noreferrer">
+          원문 링크 열기 ↗
+        </a>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function filterNews(filter, btnEl) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    if (btnEl) btnEl.classList.add('active');
+    renderNews(filter);
+  }
+
+  // Theme Switcher (Sunset Glassmorphism default <-> KakaoTalk Style toggle)
+  function applyChartTheme(theme) {
+    const isSunset = theme === 'sunset';
+    const g = ctx.createLinearGradient(0, 0, 0, 300);
+    if (theme === 'sunset') {
+      g.addColorStop(0, 'rgba(251, 191, 36, 0.38)');
+      g.addColorStop(1, 'rgba(234, 88, 12, 0.0)');
+      myChart.data.datasets[0].borderColor = '#FBBF24';
+      myChart.data.datasets[0].backgroundColor = g;
+      myChart.data.datasets[0].pointBackgroundColor = '#FB923C';
+      myChart.options.plugins.legend.labels.color = '#E7DCD5';
+      myChart.options.plugins.tooltip.backgroundColor = 'rgba(20, 14, 18, 0.94)';
+      myChart.options.plugins.tooltip.bodyColor = '#FBBF24';
+      myChart.options.scales.x.grid.color = 'rgba(255, 200, 145, 0.08)';
+      myChart.options.scales.x.ticks.color = '#C8B8B0';
+      myChart.options.scales.y.grid.color = 'rgba(255, 200, 145, 0.1)';
+      myChart.options.scales.y.ticks.color = '#C8B8B0';
+    } else if (theme === 'nvidia') {
+      g.addColorStop(0, 'rgba(118, 185, 0, 0.38)');
+      g.addColorStop(1, 'rgba(118, 185, 0, 0.0)');
+      myChart.data.datasets[0].borderColor = '#76B900';
+      myChart.data.datasets[0].backgroundColor = g;
+      myChart.data.datasets[0].pointBackgroundColor = '#9AE614';
+      myChart.options.plugins.legend.labels.color = '#A3A3A3';
+      myChart.options.plugins.tooltip.backgroundColor = '#111111';
+      myChart.options.plugins.tooltip.bodyColor = '#9AE614';
+      myChart.options.scales.x.grid.color = 'rgba(255, 255, 255, 0.06)';
+      myChart.options.scales.x.ticks.color = '#A3A3A3';
+      myChart.options.scales.y.grid.color = 'rgba(255, 255, 255, 0.08)';
+      myChart.options.scales.y.ticks.color = '#A3A3A3';
+    } else {
+      g.addColorStop(0, 'rgba(254, 229, 0, 0.45)');
+      g.addColorStop(1, 'rgba(254, 229, 0, 0.0)');
+      myChart.data.datasets[0].borderColor = '#3C1E1E';
+      myChart.data.datasets[0].backgroundColor = g;
+      myChart.data.datasets[0].pointBackgroundColor = '#FEE500';
+      myChart.options.plugins.legend.labels.color = '#555555';
+      myChart.options.plugins.tooltip.backgroundColor = '#191919';
+      myChart.options.plugins.tooltip.bodyColor = '#FEE500';
+      myChart.options.scales.x.grid.color = 'rgba(15, 23, 42, 0.05)';
+      myChart.options.scales.x.ticks.color = '#555555';
+      myChart.options.scales.y.grid.color = 'rgba(15, 23, 42, 0.07)';
+      myChart.options.scales.y.ticks.color = '#555555';
+    }
+    myChart.update();
+  }
+
+  function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    document.getElementById('btn-theme-sunset').classList.toggle('active', theme === 'sunset');
+    document.getElementById('btn-theme-nvidia').classList.toggle('active', theme === 'nvidia');
+    document.getElementById('btn-theme-kakao').classList.toggle('active', theme === 'kakao');
+    applyChartTheme(theme);
+    try { localStorage.setItem('nvda_dashboard_theme', theme); } catch (e) {}
+  }
+
+  function printReport() {
+    window.print();
+  }
+
+  // Initial render
+  renderNews('all');
+  const savedTheme = (function() { try { return localStorage.getItem('nvda_dashboard_theme'); } catch (e) { return null; } })();
+  setTheme(['sunset', 'nvidia', 'kakao'].includes(savedTheme) ? savedTheme : 'sunset');
+</script>
+
+</body>
+</html>
+
+
+
+

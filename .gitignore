@@ -1,0 +1,22 @@
+# 로컬 테스트 및 임시 스크립트 제외
+serve.ps1
+
+# 운영체제 및 에디터 임시 파일 제외
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# IDE 및 환경 설정 파일 제외
+.vscode/
+.idea/
+*.log
+
+# 비밀정보 및 인증 토큰 제외 (보안 방지)
+.env*
+*.key
+*.pem
+*.token
+credentials.json
+secrets.*
